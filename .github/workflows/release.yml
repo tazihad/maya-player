@@ -7,7 +7,6 @@ on:
       - master
     tags:
       - 'v*'
-      - 'alpha*'
   workflow_dispatch:
     inputs:
       version_tag:
@@ -49,10 +48,10 @@ jobs:
         run: flutter pub get
 
       - name: Build Universal Release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --android-skip-build-dependency-validation
 
       - name: Build Split-per-ABI Release APKs
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi --android-skip-build-dependency-validation
 
       - name: Organize & Rename APK Artifacts
         run: |
@@ -78,22 +77,21 @@ jobs:
           path: release-apks/*.apk
 
       - name: Determine Release Tag
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         id: get_tag
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version_tag }}" ]; then
             echo "tag=${{ github.event.inputs.version_tag }}" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          else
-            echo "tag=v0.1.0-alpha-${{ github.run_number }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create / Update GitHub Alpha Release
+      - name: Publish GitHub Alpha Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
           tag_name: ${{ steps.get_tag.outputs.tag }}
-          name: "Maya Player Alpha - ${{ steps.get_tag.outputs.tag }}"
+          name: "Maya Player ${{ steps.get_tag.outputs.tag }}"
           prerelease: true
           draft: false
           generate_release_notes: true
