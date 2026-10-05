@@ -68,7 +68,7 @@ class AppTheme {
         ),
         iconTheme: IconThemeData(color: textPrimary),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: cardColor,
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -83,13 +83,13 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
-      tabBarTheme: const TabBarTheme(
+      tabBarTheme: const TabBarThemeData(
         labelColor: primaryOrange,
         unselectedLabelColor: textSecondary,
         indicatorColor: primaryOrange,
         indicatorSize: TabBarIndicatorSize.label,
         labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-        unselectedStyle: TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
       ),
       textTheme: const TextTheme(
         headlineSmall: TextStyle(

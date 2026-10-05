@@ -1,4 +1,4 @@
-name: CD / Release
+name: CD
 
 on:
   push:
@@ -23,13 +23,9 @@ permissions:
   contents: write
 
 jobs:
-  prepare:
-    name: Determine Tag & Version
+  cd:
+    name: CD
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.get_tag.outputs.tag }}
-      version: ${{ steps.get_tag.outputs.version }}
-      is_prerelease: ${{ steps.get_tag.outputs.is_prerelease }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -64,16 +60,6 @@ jobs:
           echo "Version: $VERSION"
           echo "Is Pre-release: $IS_PRERELEASE"
 
-  build:
-    name: Build Android APKs
-    needs: [prepare]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Set up Java Development Kit (JDK 17)
         uses: actions/setup-java@v4
         with:
@@ -105,18 +91,18 @@ jobs:
           
           # Universal APK
           if [ -f build/app/outputs/flutter-apk/app-release.apk ]; then
-            cp build/app/outputs/flutter-apk/app-release.apk release-apks/maya-player-${{ needs.prepare.outputs.version }}-universal.apk
+            cp build/app/outputs/flutter-apk/app-release.apk release-apks/maya-player-${{ steps.get_tag.outputs.version }}-universal.apk
           fi
           
           # Per-ABI APKs
           if [ -f build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ]; then
-            cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk release-apks/maya-player-${{ needs.prepare.outputs.version }}-arm64-v8a.apk
+            cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk release-apks/maya-player-${{ steps.get_tag.outputs.version }}-arm64-v8a.apk
           fi
           if [ -f build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk ]; then
-            cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release-apks/maya-player-${{ needs.prepare.outputs.version }}-armeabi-v7a.apk
+            cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release-apks/maya-player-${{ steps.get_tag.outputs.version }}-armeabi-v7a.apk
           fi
           if [ -f build/app/outputs/flutter-apk/app-x86_64-release.apk ]; then
-            cp build/app/outputs/flutter-apk/app-x86_64-release.apk release-apks/maya-player-${{ needs.prepare.outputs.version }}-x86_64.apk
+            cp build/app/outputs/flutter-apk/app-x86_64-release.apk release-apks/maya-player-${{ steps.get_tag.outputs.version }}-x86_64.apk
           fi
 
           # Generate SHA256 Checksums
@@ -129,28 +115,15 @@ jobs:
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: maya-player-apks-${{ needs.prepare.outputs.tag }}
+          name: maya-player-apks-${{ steps.get_tag.outputs.tag }}
           path: release-apks/*
 
-  release:
-    name: Publish Release
-    needs: [prepare, build]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: maya-player-apks-${{ needs.prepare.outputs.tag }}
-          path: release-apks
-
-      - name: Create / Update GitHub Release
+      - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.prepare.outputs.tag }}
-          name: "Maya Player ${{ needs.prepare.outputs.tag }}"
-          prerelease: ${{ needs.prepare.outputs.is_prerelease == 'true' }}
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          name: "Maya Player ${{ steps.get_tag.outputs.tag }}"
+          prerelease: ${{ steps.get_tag.outputs.is_prerelease == 'true' }}
           draft: false
           generate_release_notes: true
           files: |
