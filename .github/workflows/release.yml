@@ -11,9 +11,9 @@ on:
   workflow_dispatch:
     inputs:
       version_tag:
-        description: 'Release Tag (e.g., v0.1.0-alpha)'
+        description: 'Release Tag (e.g., v0.0.1-alpha.1)'
         required: false
-        default: 'v0.1.0-alpha'
+        default: 'v0.0.1-alpha.1'
 
 permissions:
   contents: write

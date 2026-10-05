@@ -19,7 +19,7 @@ if (flutterVersionCode == null) {
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "0.1.0-alpha"
+    flutterVersionName = "0.0.1-alpha.1"
 }
 
 android {

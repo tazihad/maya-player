@@ -1,7 +1,7 @@
 name: maya_player
 description: "Maya Player - Modern Android video player powered by mpv with VLC-like discovery."
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.0.1-alpha.1+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
