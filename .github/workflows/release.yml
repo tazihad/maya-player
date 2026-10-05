@@ -1,4 +1,4 @@
-name: Build & Release Alpha
+name: CD / Release
 
 on:
   push:
@@ -6,19 +6,68 @@ on:
       - 'v*'
   workflow_dispatch:
     inputs:
-      version_tag:
-        description: 'Release Tag (e.g., v0.0.1-alpha.1)'
+      tag_name:
+        description: 'Release Tag (leave empty for current tag / auto)'
         required: false
-        default: 'v0.0.1-alpha.1'
+        default: ''
+      is_prerelease:
+        description: 'Mark as Pre-release / Alpha'
+        type: boolean
+        default: true
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
-  build:
-    name: Build Android APK & Release
+  prepare:
+    name: Determine Tag & Version
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.get_tag.outputs.tag }}
+      version: ${{ steps.get_tag.outputs.version }}
+      is_prerelease: ${{ steps.get_tag.outputs.is_prerelease }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Determine Tag & Release Type
+        id: get_tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag_name }}" ]; then
+            TAG="${{ github.event.inputs.tag_name }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="v0.0.1-alpha.1"
+          fi
+
+          VERSION="${TAG#v}"
+
+          IS_PRERELEASE="false"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            IS_PRERELEASE="${{ github.event.inputs.is_prerelease }}"
+          elif [[ "$TAG" == *"alpha"* ]] || [[ "$TAG" == *"beta"* ]] || [[ "$TAG" == *"rc"* ]]; then
+            IS_PRERELEASE="true"
+          fi
+
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          
+          echo "Release Tag: $TAG"
+          echo "Version: $VERSION"
+          echo "Is Pre-release: $IS_PRERELEASE"
+
+  build:
+    name: Build Android APKs
+    needs: [prepare]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -38,60 +87,74 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Verify Flutter & Environment
+      - name: Verify Flutter Environment
         run: flutter doctor -v
 
-      - name: Install Flutter Dependencies
+      - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build Universal Release APK
+      - name: Build Universal APK
         run: flutter build apk --release --android-skip-build-dependency-validation
 
-      - name: Build Split-per-ABI Release APKs
+      - name: Build Split-per-ABI APKs
         run: flutter build apk --release --split-per-abi --android-skip-build-dependency-validation
 
-      - name: Organize & Rename APK Artifacts
+      - name: Organize Artifacts & Generate Checksums
         run: |
           mkdir -p release-apks
-          cp build/app/outputs/flutter-apk/app-release.apk release-apks/maya-player-universal-alpha.apk
           
+          # Universal APK
+          if [ -f build/app/outputs/flutter-apk/app-release.apk ]; then
+            cp build/app/outputs/flutter-apk/app-release.apk release-apks/maya-player-${{ needs.prepare.outputs.version }}-universal.apk
+          fi
+          
+          # Per-ABI APKs
           if [ -f build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ]; then
-            cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk release-apks/maya-player-arm64-v8a-alpha.apk
+            cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk release-apks/maya-player-${{ needs.prepare.outputs.version }}-arm64-v8a.apk
           fi
           if [ -f build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk ]; then
-            cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release-apks/maya-player-armeabi-v7a-alpha.apk
+            cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release-apks/maya-player-${{ needs.prepare.outputs.version }}-armeabi-v7a.apk
           fi
           if [ -f build/app/outputs/flutter-apk/app-x86_64-release.apk ]; then
-            cp build/app/outputs/flutter-apk/app-x86_64-release.apk release-apks/maya-player-x86_64-alpha.apk
+            cp build/app/outputs/flutter-apk/app-x86_64-release.apk release-apks/maya-player-${{ needs.prepare.outputs.version }}-x86_64.apk
           fi
-          
+
+          # Generate SHA256 Checksums
+          cd release-apks
+          sha256sum *.apk > SHA256SUMS.txt
+          cd ..
+
           ls -la release-apks/
 
-      - name: Upload APKs to Artifacts
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: maya-player-apks
-          path: release-apks/*.apk
+          name: maya-player-apks-${{ needs.prepare.outputs.tag }}
+          path: release-apks/*
 
-      - name: Determine Release Tag
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
-        id: get_tag
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version_tag }}" ]; then
-            echo "tag=${{ github.event.inputs.version_tag }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Publish GitHub Alpha Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+  release:
+    name: Publish Release
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
         with:
-          tag_name: ${{ steps.get_tag.outputs.tag }}
-          name: "Maya Player ${{ steps.get_tag.outputs.tag }}"
-          prerelease: true
+          name: maya-player-apks-${{ needs.prepare.outputs.tag }}
+          path: release-apks
+
+      - name: Create / Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare.outputs.tag }}
+          name: "Maya Player ${{ needs.prepare.outputs.tag }}"
+          prerelease: ${{ needs.prepare.outputs.is_prerelease == 'true' }}
           draft: false
           generate_release_notes: true
-          files: release-apks/*.apk
+          files: |
+            release-apks/*.apk
+            release-apks/SHA256SUMS.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
