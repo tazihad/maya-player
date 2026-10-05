@@ -37,7 +37,7 @@ maya-player/
 │   ├── app/
 │   │   ├── src/main/
 │   │   │   ├── AndroidManifest.xml
-│   │   │   └── kotlin/com/maya/player/MainActivity.kt
+│   │   │   └── kotlin/bd/com/zihad/maya_player/MainActivity.kt
 │   │   └── build.gradle
 │   ├── build.gradle
 │   └── settings.gradle

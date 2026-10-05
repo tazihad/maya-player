@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.maya.player"
+    namespace "bd.com.zihad.maya_player"
     compileSdk 36
     ndkVersion flutter.ndkVersion
 
@@ -37,7 +37,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.maya.player"
+        applicationId "bd.com.zihad.maya_player"
         minSdk 21
         targetSdk 34
         versionCode flutterVersionCode.toInteger()

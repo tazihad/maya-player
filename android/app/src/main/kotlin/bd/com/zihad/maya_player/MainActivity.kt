@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// File Name:      android/app/src/main/kotlin/com/maya/player/MainActivity.kt
+// File Name:      android/app/src/main/kotlin/bd/com/zihad/maya_player/MainActivity.kt
 // Description:    Android Flutter Activity entry point.
 // Author:         @tazihad
 // Website:        https://zihad.com.bd
@@ -29,7 +29,7 @@
 // SOFTWARE.
 // -----------------------------------------------------------------------------
 
-package com.maya.player
+package bd.com.zihad.maya_player
 
 import io.flutter.embedding.android.FlutterActivity
 
