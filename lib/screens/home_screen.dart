@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Column(
-              mainAxisSize: dynamic,
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
