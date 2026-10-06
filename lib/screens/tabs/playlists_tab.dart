@@ -231,7 +231,6 @@ class _PlaylistsTabState extends State<PlaylistsTab> {
               ...playlists.entries.map((entry) {
                 final name = entry.key;
                 final paths = entry.value;
-                final isSpecial = name == 'Favorites' || name == 'Watch Later';
 
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

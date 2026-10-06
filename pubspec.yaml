@@ -1,7 +1,7 @@
 name: maya_player
 description: "Maya Player - Modern Android video player powered by mpv with VLC-like discovery."
 publish_to: 'none'
-version: 0.0.1-alpha.2+2
+version: 0.0.1-alpha.3+3
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -14,6 +14,7 @@ dependencies:
   media_kit: ^1.1.11
   media_kit_video: ^1.2.5
   media_kit_libs_android_video: ^1.3.8
+  screen_brightness_platform_interface: ^2.1.2
 
   # Media Discovery & File Handling
   photo_manager: ^3.6.4

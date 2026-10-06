@@ -9,7 +9,7 @@ on:
       tag_name:
         description: 'Release Tag (leave empty for current tag / auto)'
         required: false
-        default: 'v0.0.1-alpha.2'
+        default: 'v0.0.1-alpha.3'
       is_prerelease:
         description: 'Mark as Pre-release / Alpha'
         type: boolean
