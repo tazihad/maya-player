@@ -7,22 +7,22 @@ A modern, fast Android video player built with **Flutter** and powered by **mpv*
 ## ✨ Features
 
 - **mpv Engine Core**: High-performance video playback with hardware acceleration support powered by `libmpv` (`media_kit`).
-- **Automatic Video Discovery**: Automatically scans and indexes all local device videos.
-- **Folder Grouping (VLC Style)**: Organizes videos into their containing folders with video count and size indicators.
-- **Dual Tab Interface**:
-  - **Folders**: Grid view of video directories with dynamic previews.
-  - **All Videos**: Chronological / alphabetical list of all videos on device.
-- **VLC-like Gesture Controls**:
-  - **Vertical swipe (left side)**: Adjust brightness.
-  - **Vertical swipe (right side)**: Adjust volume.
-  - **Double-tap (left/right)**: Quick seek -10s / +10s.
-  - **Lock Button**: Lock controls to prevent accidental taps while watching.
-- **Stream / URL Playback**: Direct support for network stream URLs (HLS, RTSP, HTTP, MP4).
-- **Playback Controls**:
-  - Variable speed (0.25x - 2.0x).
-  - Aspect ratio cycling (Fit, Crop, Stretch).
-  - Playlist auto-advance and previous/next track support.
-- **Automated CI/CD**: Pre-configured GitHub Actions workflow to build split & universal APKs and publish Alpha releases.
+- **mpvKt & Aniyomi Inspired Player**:
+  - Sleek top bar with title, back button, audio track switcher, subtitle selector, and hardware decoding (HW/SW) indicator.
+  - Interactive gesture HUDs: brightness & volume pill indicators with percentage.
+  - Horizontal drag scrub preview with target timestamp & seek offset.
+  - Double-tap quick seek (+/-10s) with animated ripple feedback.
+  - Long-press 2x fast-forward playback speed boost.
+  - Aspect ratio cycling (Fit, Fill/Crop, Stretch, 16:9, 4:3).
+  - Lock mode to prevent unintended touches.
+- **VLC-Style 5-Tab Navigation**:
+  - **Home**: Continue watching carousel, quick actions, playback history preview, and statistics.
+  - **Videos**: Grid/list view of all media with search, sorting, and metadata.
+  - **Browser**: VLC-style file/directory browser to inspect specific folders and storage paths.
+  - **Playlists**: Manage playlists (Favorites, Watch Later, and Custom playlists).
+  - **More**: Access network Streams, Playback History, Settings, and About Maya Player.
+- **Material 3 Theming**: Consistent Material You / M3 styling with dynamic color accents.
+- **Automated CI/CD**: Pre-configured GitHub Actions workflow to build split & universal APKs and publish releases.
 
 ---
 
@@ -32,7 +32,7 @@ A modern, fast Android video player built with **Flutter** and powered by **mpv*
 maya-player/
 ├── .github/
 │   └── workflows/
-│       └── release.yml          # GitHub Actions CI/CD to build & release APKs
+│       └── release.yml          # GitHub Actions CD workflow to build & release APKs
 ├── android/
 │   ├── app/
 │   │   ├── src/main/
@@ -46,17 +46,29 @@ maya-player/
 │   │   ├── video_model.dart     # Video metadata & thumbnail provider
 │   │   └── folder_model.dart    # Folder / group representation
 │   ├── services/
+│   │   ├── storage_service.dart # History, Playlists, Streams, and Settings storage
 │   │   └── video_discovery_service.dart # MediaStore scanner & sorting
 │   ├── screens/
-│   │   ├── home_screen.dart     # Folders & All Videos discovery tabs
+│   │   ├── main_navigation_screen.dart # VLC-style 5-tab navigation shell
 │   │   ├── folder_detail_screen.dart # Videos within a selected folder
-│   │   └── player_screen.dart   # MPV Video player with gestures & controls
+│   │   ├── player_screen.dart   # mpvKt & Aniyomi styled MPV video player
+│   │   ├── tabs/
+│   │   │   ├── home_tab.dart    # Home dashboard & continue watching
+│   │   │   ├── videos_tab.dart  # All videos catalog
+│   │   │   ├── browser_tab.dart # Directory / folder browser
+│   │   │   ├── playlists_tab.dart # Playlists & favorites
+│   │   │   └── more_tab.dart    # VLC-style More options
+│   │   └── more/
+│   │       ├── streams_screen.dart # Network streams
+│   │       ├── history_screen.dart # Playback history
+│   │       ├── settings_screen.dart # Video, audio, interface settings
+│   │       └── about_screen.dart # App & engine info
 │   ├── widgets/
 │   │   ├── folder_grid_item.dart
 │   │   ├── video_list_item.dart
 │   │   └── video_thumbnail_widget.dart
 │   ├── theme/
-│   │   └── app_theme.dart       # Dark theme styling
+│   │   └── app_theme.dart       # Material 3 dark & light theme styling
 │   └── main.dart                # App entrypoint with MPV initialization
 ├── pubspec.yaml
 └── README.md
@@ -64,24 +76,24 @@ maya-player/
 
 ---
 
-## 🚀 Automated Builds & Alpha Releases (GitHub Actions)
+## 🚀 Automated Builds & Releases (GitHub Actions)
 
-This project is set up to build entirely in the cloud via **GitHub Actions**.
+This project is built and released in the cloud via **GitHub Actions (`CD`)**.
 
-### How to trigger a build:
-1. **Push to `main`**: Automatically triggers the workflow, builds the APKs, and creates a pre-release.
-2. **Push a Git Tag**:
+### How to trigger a release:
+1. **Push a Git Tag**:
    ```bash
-   git tag v0.1.0-alpha
-   git push origin v0.1.0-alpha
+   git tag v0.0.1-alpha.2
+   git push origin v0.0.1-alpha.2
    ```
-3. **Manual Trigger (workflow_dispatch)**:
+2. **Manual Trigger (workflow_dispatch)**:
    - Go to your repository on GitHub.
-   - Click on the **Actions** tab -> **Build & Release Alpha**.
+   - Click on the **Actions** tab -> **CD**.
    - Click **Run workflow** and optionally specify a release tag name.
 
 ### Generated APK Artifacts:
-- `maya-player-universal-alpha.apk`: Universal APK for all devices.
-- `maya-player-arm64-v8a-alpha.apk`: Optimized for modern 64-bit ARM devices.
-- `maya-player-armeabi-v7a-alpha.apk`: Optimized for 32-bit ARM devices.
-- `maya-player-x86_64-alpha.apk`: Optimized for x86_64 emulators / devices.
+- `maya-player-universal-0.0.1-alpha.2.apk`: Universal APK for all devices.
+- `maya-player-arm64-v8a-0.0.1-alpha.2.apk`: Optimized for modern 64-bit ARM devices.
+- `maya-player-armeabi-v7a-0.0.1-alpha.2.apk`: Optimized for 32-bit ARM devices.
+- `maya-player-x86_64-0.0.1-alpha.2.apk`: Optimized for x86_64 emulators / devices.
+- `SHA256SUMS.txt`: Checksums for all release assets.

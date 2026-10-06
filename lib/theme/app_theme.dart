@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // File Name:      lib/theme/app_theme.dart
-// Description:    Modern dark theme styling, colors, and typography.
+// Description:    Modern Material 3 theme styling, colors, and typography.
 // Author:         @tazihad
 // Website:        https://zihad.com.bd
 // License:        MIT License
@@ -34,30 +34,37 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static const Color primaryOrange = Color(0xFFFF6D00);
   static const Color accentOrange = Color(0xFFFF9100);
-  static const Color darkBackground = Color(0xFF0F0F12);
-  static const Color surfaceColor = Color(0xFF1B1C22);
-  static const Color surfaceLightColor = Color(0xFF262833);
-  static const Color cardColor = Color(0xFF1E2029);
-  static const Color textPrimary = Color(0xFFF0F1F5);
-  static const Color textSecondary = Color(0xFF9E9EA7);
+  static const Color darkBackground = Color(0xFF0E0E12);
+  static const Color surfaceDark = Color(0xFF171821);
+  static const Color surfaceLightDark = Color(0xFF222430);
+  static const Color cardColor = Color(0xFF1C1E28);
+  static const Color textPrimary = Color(0xFFF2F3F8);
+  static const Color textSecondary = Color(0xFF9E9FA9);
 
+  /// Material 3 Dark Theme (Default)
   static ThemeData get darkTheme {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: primaryOrange,
+      brightness: Brightness.dark,
+    ).copyWith(
+      primary: primaryOrange,
+      secondary: accentOrange,
+      surface: surfaceDark,
+      error: const Color(0xFFCF6679),
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onSurface: textPrimary,
+    );
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      colorScheme: colorScheme,
       scaffoldBackgroundColor: darkBackground,
       primaryColor: primaryOrange,
-      colorScheme: const ColorScheme.dark(
-        primary: primaryOrange,
-        secondary: accentOrange,
-        surface: surfaceColor,
-        error: Color(0xFFCF6679),
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: textPrimary,
-      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: darkBackground,
+        foregroundColor: textPrimary,
         elevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
@@ -70,46 +77,94 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: cardColor,
-        elevation: 2,
+        elevation: 1,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: surfaceLightDark.withOpacity(0.5), width: 1),
         ),
         clipBehavior: Clip.antiAlias,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: surfaceColor,
-        selectedItemColor: primaryOrange,
-        unselectedItemColor: textSecondary,
-        type: BottomNavigationBarType.fixed,
-        elevation: 8,
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surfaceDark,
+        indicatorColor: primaryOrange.withOpacity(0.2),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: primaryOrange);
+          }
+          return const IconThemeData(color: textSecondary);
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: primaryOrange,
+            );
+          }
+          return const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: textSecondary,
+          );
+        }),
       ),
       tabBarTheme: const TabBarThemeData(
         labelColor: primaryOrange,
         unselectedLabelColor: textSecondary,
         indicatorColor: primaryOrange,
         indicatorSize: TabBarIndicatorSize.label,
-        labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
+        labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
       ),
-      textTheme: const TextTheme(
-        headlineSmall: TextStyle(
-          color: textPrimary,
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: surfaceLightDark,
+        contentTextStyle: const TextStyle(color: textPrimary),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  /// Material 3 Light Theme
+  static ThemeData get lightTheme {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: primaryOrange,
+      brightness: Brightness.light,
+    ).copyWith(
+      primary: primaryOrange,
+      secondary: accentOrange,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: const Color(0xFFF9F9FC),
+      primaryColor: primaryOrange,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.white,
+        foregroundColor: Color(0xFF1E1E24),
+        elevation: 0,
+        centerTitle: false,
+        titleTextStyle: TextStyle(
+          color: Color(0xFF1E1E24),
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.5,
         ),
-        titleMedium: TextStyle(
-          color: textPrimary,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
+      ),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.grey.shade200, width: 1),
         ),
-        bodyMedium: TextStyle(
-          color: textSecondary,
-          fontSize: 14,
-        ),
-        bodySmall: TextStyle(
-          color: textSecondary,
-          fontSize: 12,
-        ),
+        clipBehavior: Clip.antiAlias,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.white,
+        indicatorColor: primaryOrange.withOpacity(0.15),
       ),
     );
   }
