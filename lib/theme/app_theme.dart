@@ -35,8 +35,10 @@ class AppTheme {
   static const Color primaryOrange = Color(0xFFFF6D00);
   static const Color accentOrange = Color(0xFFFF9100);
   static const Color darkBackground = Color(0xFF0E0E12);
-  static const Color surfaceDark = Color(0xFF171821);
-  static const Color surfaceLightDark = Color(0xFF222430);
+  static const Color surfaceColor = Color(0xFF171821);
+  static const Color surfaceLightColor = Color(0xFF222430);
+  static const Color surfaceDark = surfaceColor;
+  static const Color surfaceLightDark = surfaceLightColor;
   static const Color cardColor = Color(0xFF1C1E28);
   static const Color textPrimary = Color(0xFFF2F3F8);
   static const Color textSecondary = Color(0xFF9E9FA9);

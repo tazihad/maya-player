@@ -383,9 +383,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         : null,
                     onTap: () {
                       if (isSubtitle) {
-                        _player.setSubtitleTrack(track);
+                        _player.setSubtitleTrack(track as SubtitleTrack);
                       } else {
-                        _player.setAudioTrack(track);
+                        _player.setAudioTrack(track as AudioTrack);
                       }
                       Navigator.of(context).pop();
                       _showHUD('Selected: $title',
